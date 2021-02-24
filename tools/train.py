@@ -38,7 +38,7 @@ def parse_args():
     
     parser.add_argument('--cfg',
                         help='experiment configure file name',
-                        required=True,
+                        default="experiments/cityscapes/ddrnet_slim.yaml",
                         type=str)
     parser.add_argument('--seed', type=int, default=304)
     parser.add_argument("--local_rank", type=int, default=-1)       
@@ -88,6 +88,7 @@ def main():
     gpus = list(config.GPUS)
     distributed = args.local_rank >= 0
     if distributed:
+        print("---------------devices:", args.local_rank)
         device = torch.device('cuda:{}'.format(args.local_rank))    
         torch.cuda.set_device(device)
         torch.distributed.init_process_group(
@@ -95,12 +96,13 @@ def main():
         )        
 
     # build model
+    if torch.__version__.startswith('1'):
+        module = eval('models.'+config.MODEL.NAME)
+        module.BatchNorm2d_class = module.BatchNorm2d = torch.nn.BatchNorm2d
     model = eval('models.'+config.MODEL.NAME +
                  '.get_seg_model')(config)
 
-    # dump_input = torch.rand(
-    #     (1, 3, config.TRAIN.IMAGE_SIZE[1], config.TRAIN.IMAGE_SIZE[0])
-    # )
+    # dump_input = torch.rand( (1, 3, config.TRAIN.IMAGE_SIZE[1], config.TRAIN.IMAGE_SIZE[0]) )
     # logger.info(get_model_summary(model.cuda(), dump_input.cuda()))
 
     # copy model file
@@ -184,7 +186,7 @@ def main():
     test_sampler = get_sampler(test_dataset)
     testloader = torch.utils.data.DataLoader(
         test_dataset,
-        batch_size=batch_size,
+        batch_size=1,
         shuffle=False,
         num_workers=config.WORKERS,
         pin_memory=True,
@@ -215,7 +217,6 @@ def main():
 
     # optimizer
     if config.TRAIN.OPTIMIZER == 'sgd':
-
         params_dict = dict(model.named_parameters())
         if config.TRAIN.NONBACKBONE_KEYWORDS:
             bb_lr = []
@@ -274,7 +275,7 @@ def main():
             current_trainloader.sampler.set_epoch(epoch)
 
         # valid_loss, mean_IoU, IoU_array = validate(config, 
-        #             testloader, model, writer_dict)
+        #         testloader, model, writer_dict)
 
         if epoch >= config.TRAIN.END_EPOCH:
             train(config, epoch-config.TRAIN.END_EPOCH, 
@@ -286,8 +287,9 @@ def main():
                   epoch_iters, config.TRAIN.LR, num_iters,
                   trainloader, optimizer, model, writer_dict)
 
-        valid_loss, mean_IoU, IoU_array = validate(config, 
-                    testloader, model, writer_dict)
+        if epoch % 10 == 0:
+            valid_loss, mean_IoU, IoU_array = validate(config, 
+                        testloader, model, writer_dict)
 
         if args.local_rank <= 0:
             logger.info('=> saving checkpoint to {}'.format(

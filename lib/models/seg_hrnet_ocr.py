@@ -57,9 +57,11 @@ class SpatialGather_Module(nn.Module):
         self.scale = scale
 
     def forward(self, feats, probs):
-        batch_size, c, h, w = probs.size(0), probs.size(1), probs.size(2), probs.size(3)
-        probs = probs.view(batch_size, c, -1)
-        feats = feats.view(batch_size, feats.size(1), -1)
+        # batch_size, c, h, w = probs.size(0), probs.size(1), probs.size(2), probs.size(3)
+        batch_size, c = torch.tensor(probs.shape[:2]).tolist()
+        t_c = torch.tensor(feats.size(1)).item()
+        probs = probs.view(batch_size, c, -1) # batch × c × hw
+        feats = feats.view(batch_size, t_c, -1)
         feats = feats.permute(0, 2, 1) # batch x hw x c 
         probs = F.softmax(self.scale * probs, dim=2)# batch x k x hw
         ocr_context = torch.matmul(probs, feats)\
@@ -119,6 +121,7 @@ class _ObjectAttentionBlock(nn.Module):
 
     def forward(self, x, proxy):
         batch_size, h, w = x.size(0), x.size(2), x.size(3)
+        batch_size = torch.tensor(batch_size).item()          # 11.30
         if self.scale > 1:
             x = self.pool(x)
 
@@ -135,7 +138,12 @@ class _ObjectAttentionBlock(nn.Module):
         # add bg context ...
         context = torch.matmul(sim_map, value)
         context = context.permute(0, 2, 1).contiguous()
-        context = context.view(batch_size, self.key_channels, *x.size()[2:])
+        # pytorch
+        # context = context.view(batch_size, self.key_channels, *x.size()[2:])
+
+        # onnx
+        x_height, x_width = torch.tensor(x.size()[2:]).tolist()
+        context = context.view(batch_size, self.key_channels, x_height, x_width)
         context = self.f_up(context)
         if self.scale > 1:
             context = F.interpolate(input=context, size=(h, w), mode='bilinear', align_corners=ALIGN_CORNERS)
@@ -395,8 +403,11 @@ class HighResolutionModule(nn.Module):
                 if i == j:
                     y = y + x[j]
                 elif j > i:
-                    width_output = x[i].shape[-1]
-                    height_output = x[i].shape[-2]
+                    # width_output = x[i].shape[-1]
+                    # height_output = x[i].shape[-2]
+                    shape = torch.tensor(x[i].shape).tolist()
+                    height_output, width_output = shape[-2:]
+
                     y = y + F.interpolate(
                         self.fuse_layers[i][j](x[j]),
                         size=[height_output, width_output],
@@ -621,11 +632,14 @@ class HighResolutionNet(nn.Module):
 
         # Upsampling
         x0_h, x0_w = x[0].size(2), x[0].size(3)
-        x1 = F.interpolate(x[1], size=(x0_h, x0_w),
+        t_height, t_width = torch.tensor([x0_h, x0_w]).tolist()
+        assert(x0_h == t_height and x0_w == t_width)
+
+        x1 = F.interpolate(x[1], size=(t_height, t_width),
                         mode='bilinear', align_corners=ALIGN_CORNERS)
-        x2 = F.interpolate(x[2], size=(x0_h, x0_w),
+        x2 = F.interpolate(x[2], size=(t_height, t_width),
                         mode='bilinear', align_corners=ALIGN_CORNERS)
-        x3 = F.interpolate(x[3], size=(x0_h, x0_w),
+        x3 = F.interpolate(x[3], size=(t_height, t_width),
                         mode='bilinear', align_corners=ALIGN_CORNERS)
 
         feats = torch.cat([x[0], x1, x2, x3], 1)

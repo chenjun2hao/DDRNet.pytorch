@@ -66,6 +66,8 @@ class BaseDataset(data.Dataset):
         h, w = image.shape[:-1]
         image = self.pad_image(image, h, w, self.crop_size,
                                (0.0, 0.0, 0.0))
+        # label = self.pad_image(label, h, w, self.crop_size,
+        #                        (0,))
         label = self.pad_image(label, h, w, self.crop_size,
                                (self.ignore_label,))
 
@@ -183,6 +185,7 @@ class BaseDataset(data.Dataset):
 
     def reduce_zero_label(self, labelmap):
         labelmap = np.array(labelmap)
+        # encoded_labelmap = labelmap 
         encoded_labelmap = labelmap - 1
 
         return encoded_labelmap
