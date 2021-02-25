@@ -27,7 +27,7 @@ def parse_args():
     
     parser.add_argument('--cfg',
                         help='experiment configure file name',
-                        default="experiments/cityscapes/ddrnet23_slim.yaml",
+                        default="experiments/cityscapes/ddrnet23.yaml",
                         type=str)
     parser.add_argument('opts',
                         help="Modify config options using the command-line",
@@ -81,7 +81,7 @@ def main():
         # model_state_file = os.path.join(final_output_dir, 'final_state.pth')        
     logger.info('=> loading model from {}'.format(model_state_file))
         
-    pretrained_dict = torch.load(model_state_file)
+    pretrained_dict = torch.load(model_state_file, map_location='cpu')
     if 'state_dict' in pretrained_dict:
         pretrained_dict = pretrained_dict['state_dict']
     model_dict = model.state_dict()
@@ -100,8 +100,7 @@ def main():
     x = torch.randn((1,3,480,640))
     torch_out = net(x)
 
-    # output_path = "output/tensorrt/resnet50/resnet50_bilinear.onnx"
-    output_path = "output/ddrnet23_slim.onnx"
+    output_path = "output/ddrnet23.onnx"
     torch.onnx.export(net,               # model being run
                     x,                         # model input (or a tuple for multiple inputs)
                     output_path,   # where to save the model (can be a file or file-like object)
