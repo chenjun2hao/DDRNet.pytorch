@@ -51,4 +51,7 @@ TEST:
   BATCH_SIZE_PER_GPU: 4
   FLIP_TEST: true
   MULTI_SCALE: false
+  SCALE_LIST: [1]
+  #0.5,0.75,1.0,1.25,1.5,1.75
   MODEL_FILE: "pretrained_models/best_val_smaller.pth"
+  OUTPUT_INDEX: 0

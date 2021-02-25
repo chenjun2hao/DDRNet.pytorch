@@ -35,7 +35,7 @@ def parse_args():
     
     parser.add_argument('--cfg',
                         help='experiment configure file name',
-                        default="experiments/cityscapes/ddrnet_slim.yaml",
+                        default="experiments/cityscapes/ddrnet23_slim.yaml",
                         type=str)
     parser.add_argument('opts',
                         help="Modify config options using the command-line",

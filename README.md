@@ -27,7 +27,7 @@ Here I list the software and hardware used in my experiment
 
 You need to download the [Cityscapes](https://www.cityscapes-dataset.com/)datasets. and rename the folder `cityscapes`, then put the data under `data` folder. 
 ```
-|--data
+└── data
   ├── cityscapes
   └── list
 ```
@@ -39,7 +39,7 @@ download the pretrained model on imagenet or the segmentation model from the [of
 
 ## VAL
 
-use the [official pretrained model](https://github.com/ydhongHIT/DDRNet) for eval.
+use the [official pretrained model](https://github.com/ydhongHIT/DDRNet) and our `eval.py` code. so the result may different from official.
 
 ```python
 cd ${PROJECT}
@@ -48,10 +48,14 @@ python tools/eval.py --cfg experiments/cityscapes/ddrnet23_slim.yaml
 
 | model | Train Set | Test Set | OHEM | Multi-scale| Flip | mIoU | Link |
 | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |
-| DDRNet23_slim | unknown | eval | unknown | No | Yes | 77.40 | [official](https://github.com/ydhongHIT/DDRNet) |
-| DDRNet23      | unknown | eval | unknown | No | Yes | 79.40 | [official](https://github.com/ydhongHIT/DDRNet) |
-| DDRNet39      | unknown | eval | unknown | No | Yes | 80.40 | [official](https://github.com/ydhongHIT/DDRNet) |
-| DDRNet39      | unknown | eval | unknown | Yes | Yes | 81.9 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23_slim | unknown | eval | Yes | No | No | 76.83 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23_slim | unknown | eval | Yes | No | Yes| 77.40 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23      | unknown | eval | Yes | No | No | 78.41 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23      | unknown | eval | Yes | No | Yes| 78.85 | [official](https://github.com/ydhongHIT/DDRNet) |
+
+
+**Note**
+- [the official repository](https://github.com/ydhongHIT/DDRNet) on DDRNet23_slim without Flip can reach 77.40 on cityscapes dataset
 
 
 ## TRAIN
@@ -65,10 +69,20 @@ python -m torch.distributed.launch --nproc_per_node=2 tools/train.py --cfg exper
 
 **the own trained model coming soon**
 
+## OWN model
+| model | Train Set | Test Set | OHEM | Multi-scale| Flip | mIoU | Link |
+| :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |
+| DDRNet23_slim | train | eval | Yes | No | Yes | 77.77 | [Baidu/password:it2s](https://pan.baidu.com/s/17pOOTc-HBG6TNf4k_cn4VA) |
+| DDRNet23_slim | train | eval | Yes | Yes| Yes | 79.57 | [Baidu/password:it2s](https://pan.baidu.com/s/17pOOTc-HBG6TNf4k_cn4VA) |
+| DDRNet23      | train | eval | Yes | No | Yes | ~ | None |
+| DDRNet39      | train | eval | Yes | No | Yes | ~ | None |
 
+**Note**
+- Multi-scale with scales: 0.5,0.75,1.0,1.25,1.5,1.75. it runs too slow.
+- from [ydhongHIT](https://github.com/ydhongHIT), can change the `align_corners=True` with better performance, the default option is `False`
 
 ## Reference
-[1] [HRNet-Semantic-Segmentation OCR](https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/HRNet-OCR) 
+[1] [HRNet-Semantic-Segmentation OCR branch](https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/HRNet-OCR) 
 
 [2] [the official repository](https://github.com/ydhongHIT/DDRNet)
 

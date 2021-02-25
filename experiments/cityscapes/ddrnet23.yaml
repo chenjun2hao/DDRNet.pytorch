@@ -49,6 +49,7 @@ TEST:
   - 1024
   BASE_SIZE: 2048
   BATCH_SIZE_PER_GPU: 4
-  FLIP_TEST: true
+  FLIP_TEST: false
   MULTI_SCALE: false
-  MODEL_FILE: "pretrained_models/best_val.pth.pth"
+  MODEL_FILE: "pretrained_models/best_val.pth"
+  OUTPUT_INDEX: 0
