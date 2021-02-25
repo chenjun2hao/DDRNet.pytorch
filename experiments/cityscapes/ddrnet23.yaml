@@ -18,6 +18,7 @@ MODEL:
   NAME: ddrnet_23
   NUM_OUTPUTS: 2
   PRETRAINED: "pretrained_models/DDRNet23_imagenet.pth"
+  ALIGN_CORNERS: false
 LOSS:
   USE_OHEM: true
   OHEMTHRES: 0.9
@@ -49,7 +50,7 @@ TEST:
   - 1024
   BASE_SIZE: 2048
   BATCH_SIZE_PER_GPU: 4
-  FLIP_TEST: false
+  FLIP_TEST: true
   MULTI_SCALE: false
   MODEL_FILE: "pretrained_models/best_val.pth"
   OUTPUT_INDEX: 0

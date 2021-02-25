@@ -18,6 +18,7 @@ MODEL:
   NAME: ddrnet_23_slim
   NUM_OUTPUTS: 2
   PRETRAINED: "pretrained_models/DDRNet23s_imagenet.pth"
+  ALIGN_CORNERS: false
 LOSS:
   USE_OHEM: true
   OHEMTHRES: 0.9
@@ -49,9 +50,9 @@ TEST:
   - 1024
   BASE_SIZE: 2048
   BATCH_SIZE_PER_GPU: 4
-  FLIP_TEST: true
+  FLIP_TEST: false
   MULTI_SCALE: false
   SCALE_LIST: [1]
   #0.5,0.75,1.0,1.25,1.5,1.75
-  MODEL_FILE: "pretrained_models/best_val_smaller.pth"
+  # MODEL_FILE: "pretrained_models/best_val_smaller.pth"
   OUTPUT_INDEX: 0

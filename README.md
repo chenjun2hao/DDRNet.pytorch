@@ -39,7 +39,7 @@ download the pretrained model on imagenet or the segmentation model from the [of
 
 ## VAL
 
-use the [official pretrained model](https://github.com/ydhongHIT/DDRNet) and our `eval.py` code. so the result may different from official.
+use the [official pretrained model](https://github.com/ydhongHIT/DDRNet) and our `eval.py` code. with [ydhongHIT's](https://github.com/ydhongHIT) advice now can reach the same accuracy in the paper. Thanks.
 
 ```python
 cd ${PROJECT}
@@ -48,14 +48,14 @@ python tools/eval.py --cfg experiments/cityscapes/ddrnet23_slim.yaml
 
 | model | Train Set | Test Set | OHEM | Multi-scale| Flip | mIoU | Link |
 | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |
-| DDRNet23_slim | unknown | eval | Yes | No | No | 76.83 | [official](https://github.com/ydhongHIT/DDRNet) |
-| DDRNet23_slim | unknown | eval | Yes | No | Yes| 77.40 | [official](https://github.com/ydhongHIT/DDRNet) |
-| DDRNet23      | unknown | eval | Yes | No | No | 78.41 | [official](https://github.com/ydhongHIT/DDRNet) |
-| DDRNet23      | unknown | eval | Yes | No | Yes| 78.85 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23_slim | unknown | eval | Yes | No | No | 77.83 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23_slim | unknown | eval | Yes | No | Yes| 78.42 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23      | unknown | eval | Yes | No | No | 79.51 | [official](https://github.com/ydhongHIT/DDRNet) |
+| DDRNet23      | unknown | eval | Yes | No | Yes| 79.98 | [official](https://github.com/ydhongHIT/DDRNet) |
 
 
 **Note**
-- [the official repository](https://github.com/ydhongHIT/DDRNet) on DDRNet23_slim without Flip can reach 77.40 on cityscapes dataset
+- with the `ALIGN_CORNERS: false` in `***.yaml` will reach higher accuracy.
 
 
 ## TRAIN
@@ -78,6 +78,7 @@ python -m torch.distributed.launch --nproc_per_node=2 tools/train.py --cfg exper
 | DDRNet39      | train | eval | Yes | No | Yes | ~ | None |
 
 **Note**
+- set the `ALIGN_CORNERS: true` in `***.yaml`, because i use the default setting in [HRNet-Semantic-Segmentation OCR](https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/HRNet-OCR).
 - Multi-scale with scales: 0.5,0.75,1.0,1.25,1.5,1.75. it runs too slow.
 - from [ydhongHIT](https://github.com/ydhongHIT), can change the `align_corners=True` with better performance, the default option is `False`
 

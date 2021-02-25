@@ -27,7 +27,7 @@ def parse_args():
     
     parser.add_argument('--cfg',
                         help='experiment configure file name',
-                        default="experiments/map/map_hrnet_ocr_w18_small_v2_512x1024_sgd_lr1e-2_wd5e-4_bs_12_epoch484.yaml",
+                        default="experiments/cityscapes/ddrnet23_slim.yaml",
                         type=str)
     parser.add_argument('opts',
                         help="Modify config options using the command-line",
@@ -46,7 +46,7 @@ class onnx_net(nn.Module):
 
     def forward(self, x):
         x1, x2 = self.backone(x)
-        y = F.interpolate(x2, size=(480,640), mode='bilinear')
+        y = F.interpolate(x1, size=(480,640), mode='bilinear')
         # y = F.softmax(y, dim=1)
         y = torch.argmax(y, dim=1)
 
@@ -94,18 +94,19 @@ def main():
     model.load_state_dict(model_dict)
 
     net = onnx_net(model)
+    net = net.eval()
 
     # x = torch.randn((1, 3, 512, 384))
     x = torch.randn((1,3,480,640))
     torch_out = net(x)
 
     # output_path = "output/tensorrt/resnet50/resnet50_bilinear.onnx"
-    output_path = "output/hrnetv2_w18_480_640.onnx"
+    output_path = "output/ddrnet23_slim.onnx"
     torch.onnx.export(net,               # model being run
                     x,                         # model input (or a tuple for multiple inputs)
                     output_path,   # where to save the model (can be a file or file-like object)
                     export_params=True,        # store the trained parameter weights inside the model file
-                    opset_version=9,          # the ONNX version to export the model to
+                    opset_version=11,          # the ONNX version to export the model to
                     do_constant_folding=True,  # whether to execute constant folding for optimization
                     input_names = ['inputx'],   # the model's input names
                     output_names = ['outputy'], # the model's output names
