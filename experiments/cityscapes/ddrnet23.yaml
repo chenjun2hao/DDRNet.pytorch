@@ -53,4 +53,4 @@ TEST:
   FLIP_TEST: true
   MULTI_SCALE: false
   MODEL_FILE: "pretrained_models/best_val.pth"
-  OUTPUT_INDEX: 0
+  OUTPUT_INDEX: 1
