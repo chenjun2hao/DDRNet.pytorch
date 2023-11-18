@@ -268,6 +268,9 @@ def main():
     num_iters = config.TRAIN.END_EPOCH * epoch_iters
     extra_iters = config.TRAIN.EXTRA_EPOCH * extra_epoch_iters
     
+    # check if it is a resume training
+    do_resume = config.TRAIN.RESUME
+    
     for epoch in range(last_epoch, end_epoch):
 
         current_trainloader = extra_trainloader if epoch >= config.TRAIN.END_EPOCH else trainloader
@@ -287,9 +290,11 @@ def main():
                   epoch_iters, config.TRAIN.LR, num_iters,
                   trainloader, optimizer, model, writer_dict)
 
-        if epoch % 10 == 0:
+        if epoch % 10 == 0 or do_resume:
             valid_loss, mean_IoU, IoU_array = validate(config, 
                         testloader, model, writer_dict)
+            # run validate to obtain valid_loss and mean_IoU on resume, then remove flag
+            do_resume = False
 
         if args.local_rank <= 0:
             logger.info('=> saving checkpoint to {}'.format(
